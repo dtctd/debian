@@ -1,15 +1,20 @@
 #!/bin/sh
 
 # Configure iptables backup and restore
-iptables-save > /etc/iptables.up.rules
 echo "#!/bin/sh" > /etc/network/if-pre-up.d/iptables
 echo "/sbin/iptables-restore < /etc/iptables.up.rules" >> /etc/network/if-pre-up.d/iptables
 chmod +x /etc/network/if-pre-up.d/iptables
 
 # Configure iptable rules
+iptables -F INPUT
+iptables -F OUTPUT
+iptables -F FORWARD
 iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
 iptables -A INPUT -i eth0 -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j DROP
 iptables -A INPUT -p tcp --dport 111 -j DROP
+
+# Save iptables
+iptables-save > /etc/iptables.up.rules
 
 # Disable ipv6
 echo "#disable ipv6" >> /etc/sysctl.conf
