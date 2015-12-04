@@ -31,14 +31,11 @@ iptables-save > /etc/iptables.up.rules
 
 # Disable ipv6
 CheckEntry("#disable ipv6","/etc/sysctl.conf")
-
-#echo "#disable ipv6" >> /etc/sysctl.conf
-#echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
-#echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
-#echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf
-#echo "Ignore ICMP request:" >> /etc/sysctl.conf
-#echo "net.ipv4.icmp_echo_ignore_all = 1" >> /etc/sysctl.conf
-#echo "Ignore Broadcast request:" >> /etc/sysctl.conf
-#echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.conf
-
+CheckEntry("net.ipv6.conf.all.disable_ipv6 = 1","/etc/sysctl.conf")
+CheckEntry("net.ipv6.conf.default.disable_ipv6 = 1","/etc/sysctl.conf")
+CheckEntry("net.ipv6.conf.lo.disable_ipv6 = 1","/etc/sysctl.conf")
+CheckEntry("Ignore ICMP request:","/etc/sysctl.conf")
+CheckEntry("net.ipv4.icmp_echo_ignore_all = 1","/etc/sysctl.conf")
+CheckEntry("Ignore Broadcast request:","/etc/sysctl.conf")
+CheckEntry("net.ipv4.icmp_echo_ignore_broadcasts = 1","/etc/sysctl.conf")
 sysctl -p
