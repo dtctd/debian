@@ -21,4 +21,4 @@ echo "net.ipv4.icmp_echo_ignore_all = 1" >> /etc/sysctl.conf
 echo "Ignore Broadcast request:" >> /etc/sysctl.conf
 echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" >> /etc/sysctl.conf
 
-restart sysctl
+sysctl -p
