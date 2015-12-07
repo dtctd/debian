@@ -88,7 +88,7 @@ function installSysctlConfig() {
             IS_MOVED=$(move $TEMP_DIRECTORY"sysctl.conf" $SYSCTL_CONF_FILE)
 
             if [ "$IS_MOVED" == "1" ]; then
-               sysctl -p
+               sysctl -p > /dev/null 2>&1
             else
                 showError "sysctl setup failed!"
             fi
