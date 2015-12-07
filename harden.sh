@@ -171,17 +171,17 @@ function configureIptablesSave() {
 }
 
 # Configure iptable rules
-iptables -F INPUT
-iptables -F OUTPUT
-iptables -F FORWARD
-iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -s 127.0.0.1/32 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
-iptables -A INPUT -j DROP
-iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -j DROP
-iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -m state --state NEW -j ACCEPT
+#iptables -F INPUT
+#iptables -F OUTPUT
+#iptables -F FORWARD
+#iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+#iptables -A INPUT -s 127.0.0.1/32 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
+#iptables -A INPUT -j DROP
+#iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+#iptables -A FORWARD -j DROP
+#iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+#iptables -A OUTPUT -m state --state NEW -j ACCEPT
 
 installSysctlConfig
 configureIptables
