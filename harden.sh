@@ -9,24 +9,24 @@
 SCRIPT_VERSION="0.1"
 USER="monitor"
 HOME_DIRECTORY="/home/$USER/"
-TEMP_DIRECTORY=HOME_DIRECTORY"temp/"
+TEMP_DIRECTORY=$HOME_DIRECTORY"temp/"
 SYSCTL_CONF_FILE="/etc/sysctl.conf"
-
 DOWNLOAD_URL="https://github.com/dtctd/debian/raw/master/"
 LOG_FILE=$HOME_DIRECTORY"Hardening.log"
+
 DIALOG_WIDTH=70
 SCRIPT_TITLE="Debian hardening script v$SCRIPT_VERSION for Debian 8.2 by Sander de Wit"
 
 function showInfo() {
     CUR_DATE=$(date +%Y-%m-%d"  "%H:%M)
     echo "$CUR_DATE - INFO :: $@" >> $LOG_FILE
-    dialog --title "Installing & Configuring..." --backtitle "$SCRIPT_TITLE" --infobox "\n$@" 5 $DIALOG_WIDTH
+    #dialog --title "Installing & Configuring..." --backtitle "$SCRIPT_TITLE" --infobox "\n$@" 5 $DIALOG_WIDTH
 }
 
 function showError() {
     CUR_DATE=$(date +%Y-%m-%d"  "%H:%M)
     echo "$CUR_DATE - ERROR :: $@" >> $LOG_FILE
-    dialog --title "Error" --backtitle "$SCRIPT_TITLE" --msgbox "$@" 8 $DIALOG_WIDTH
+    #dialog --title "Error" --backtitle "$SCRIPT_TITLE" --msgbox "$@" 8 $DIALOG_WIDTH
 }
 
 function download() {
@@ -102,15 +102,15 @@ function installSysctlConfig() {
         download $DOWNLOAD_URL"sysctl.conf"
 
         if [ -e $TEMP_DIRECTORY"sysctl.conf" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"sysctl.conf" $SYSCTL_CONF_FILE
+            IS_MOVED=$(move $TEMP_DIRECTORY"sysctl.conf" $SYSCTL_CONF_FILE)
 
             if [ "$IS_MOVED" == "1" ]; then
                sysctl -p
             else
-                showerror "sysctl setup failed!"
+                showError "sysctl setup failed!"
             fi
         else
-            showerror "Download of sysctl.conf failed!"
+            showError "Download of sysctl.conf failed!"
         fi
 }
 
@@ -120,15 +120,15 @@ function configureIptables() {
         download $DOWNLOAD_URL"iptables.rules"
 
         if [ -e $TEMP_DIRECTORY"iptables.rules" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptables.rules" "/etc/iptables.rules"
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptables.rules" "/etc/iptables.rules")
 
             if [ "$IS_MOVED" == "1" ]; then
                 showInfo "Iptables setup succeeded"
             else
-                showerror "Iptables setup failed!"
+                showError "Iptables setup failed!"
             fi
         else
-            showerror "Download of iptables.rules failed!"
+            showError "Download of iptables.rules failed!"
         fi
 }
 
@@ -138,16 +138,16 @@ function configureIptablesLoad() {
         download $DOWNLOAD_URL"iptablesload"
 
         if [ -e $TEMP_DIRECTORY"iptablesload" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptablesload" "/etc/network/if-pre-up.d/iptablesload"
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptablesload" "/etc/network/if-pre-up.d/iptablesload")
 
             if [ "$IS_MOVED" == "1" ]; then
                 sudo chmod +x /etc/network/if-pre-up.d/iptablesload
                 showInfo "Iptablesload setup succeeded"
             else
-                showerror "Iptablesload setup failed!"
+                showError "Iptablesload setup failed!"
             fi
         else
-            showerror "Download of iptablesload failed!"
+            showError "Download of iptablesload failed!"
         fi
 }
 
@@ -157,16 +157,16 @@ function configureIptablesSave() {
         download $DOWNLOAD_URL"iptablessave"
 
         if [ -e $TEMP_DIRECTORY"iptablessave" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptablessave" "/etc/network/if-pre-up.d/iptablessave"
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptablessave" "/etc/network/if-pre-up.d/iptablessave")
 
             if [ "$IS_MOVED" == "1" ]; then
                 sudo chmod +x /etc/network/if-pre-up.d/iptablessave
                 showInfo "Iptablessave setup succeeded"
             else
-                showerror "Iptablessave setup failed!"
+                showError "Iptablessave setup failed!"
             fi
         else
-            showerror "Download of Iptablessave failed!"
+            showError "Download of Iptablessave failed!"
         fi
 }
 
