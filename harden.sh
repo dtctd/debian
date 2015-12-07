@@ -1,12 +1,13 @@
 #!/bin/sh
 
-function CheckEntry {
+CheckEntry () {
     if grep -q $1 $2;
     then
         echo "entry '$1' allready present in '$2'"
     else
         echo $1 >> $2
     fi
+}
 
 # Configure iptables backup and restore
 echo "#!/bin/sh" > /etc/network/if-pre-up.d/iptables
