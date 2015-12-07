@@ -106,6 +106,7 @@ function configureIptables() {
             IS_MOVED=$(move $TEMP_DIRECTORY"iptables.rules" "/etc/iptables.rules")
 
             if [ "$IS_MOVED" == "1" ]; then
+                iptables-restore < /etc/iptables.rules
                 showInfo "Iptables setup succeeded"
             else
                 showError "Iptables setup failed!"
