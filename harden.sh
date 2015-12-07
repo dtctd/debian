@@ -34,7 +34,7 @@ function download() {
     wget -q "$URL" >/dev/null 2>&1
 }
 
-fuction move() {
+function move() {
     SOURCE="$1"
     DESTINATION="$2"
     IS_ROOT="$3"
@@ -43,7 +43,8 @@ fuction move() {
         if [ "$IS_ROOT" == "0" ]; then
             mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
         else
-            sudo mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
+            #sudo mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
+            mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
         fi
 
         if [ "$?" == "0" ]; then
@@ -64,12 +65,14 @@ function createFile() {
     REMOVE_IF_EXISTS="$3"
 
     if [ -e "$FILE" ] && [ "$REMOVE_IF_EXISTS" == "1" ]; then
-        sudo rm "$FILE" > /dev/null
+        #sudo rm "$FILE" > /dev/null
+        rm "$FILE" > /dev/null
     else
         if [ "$IS_ROOT" == "0" ]; then
             touch "$FILE" > /dev/null
         else
-            sudo touch "$FILE" > /dev/null
+            #sudo touch "$FILE" > /dev/null
+            touch "$FILE" > /dev/null
         fi
     fi
 }
@@ -83,7 +86,8 @@ function createDirectory() {
         if [ "$IS_ROOT" == "0" ]; then
             mkdir -p "$DIRECTORY" > /dev/null 2>&1
         else
-            sudo mkdir -p "$DIRECTORY" > /dev/null 2>&1
+            #sudo mkdir -p "$DIRECTORY" > /dev/null 2>&1
+            mkdir -p "$DIRECTORY" > /dev/null 2>&1
         fi
     fi
 
@@ -100,22 +104,26 @@ function handleFileBackup() {
 
     if [ -e "$BACKUP" ]; then
         if [ "$IS_ROOT" == "1" ]; then
-            sudo rm "$FILE" > /dev/null 2>&1
-            sudo cp "$BACKUP" "$FILE" > /dev/null 2>&1
+            #sudo rm "$FILE" > /dev/null 2>&1
+            rm "$FILE" > /dev/null 2>&1
+            #sudo cp "$BACKUP" "$FILE" > /dev/null 2>&1
+            cp "$BACKUP" "$FILE" > /dev/null 2>&1
         else
             rm "$FILE" > /dev/null 2>&1
             cp "$BACKUP" "$FILE" > /dev/null 2>&1
         fi
     else
         if [ "$IS_ROOT" == "1" ]; then
-            sudo cp "$FILE" "$BACKUP" > /dev/null 2>&1
+            #sudo cp "$FILE" "$BACKUP" > /dev/null 2>&1
+            cp "$FILE" "$BACKUP" > /dev/null 2>&1
         else
             cp "$FILE" "$BACKUP" > /dev/null 2>&1
         fi
     fi
 
     if [ "$DELETE_ORIGINAL" == "1" ]; then
-        sudo rm "$FILE" > /dev/null 2>&1
+        #sudo rm "$FILE" > /dev/null 2>&1
+        rm "$FILE" > /dev/null 2>&1
     fi
 }
 
@@ -165,7 +173,8 @@ function configureIptablesLoad() {
             IS_MOVED=$(move $TEMP_DIRECTORY"iptablesload" "/etc/network/if-pre-up.d/iptablesload")
 
             if [ "$IS_MOVED" == "1" ]; then
-                sudo chmod +x /etc/network/if-pre-up.d/iptablesload
+                #sudo chmod +x /etc/network/if-pre-up.d/iptablesload
+                chmod +x /etc/network/if-pre-up.d/iptablesload
                 showInfo "Iptablesload setup succeeded"
             else
                 showError "Iptablesload setup failed!"
@@ -184,7 +193,8 @@ function configureIptablesSave() {
             IS_MOVED=$(move $TEMP_DIRECTORY"iptablessave" "/etc/network/if-pre-up.d/iptablessave")
 
             if [ "$IS_MOVED" == "1" ]; then
-                sudo chmod +x /etc/network/if-pre-up.d/iptablessave
+                #sudo chmod +x /etc/network/if-pre-up.d/iptablessave
+                chmod +x /etc/network/if-pre-up.d/iptablessave
                 showInfo "Iptablessave setup succeeded"
             else
                 showError "Iptablessave setup failed!"
@@ -192,6 +202,24 @@ function configureIptablesSave() {
         else
             showError "Download of Iptablessave failed!"
         fi
+}
+
+function cleanUp() {
+    showInfo "Cleaning up..."
+    #sudo apt-get -y autoremove > /dev/null 2>&1
+    apt-get -y autoremove > /dev/null 2>&1
+    sleep 1
+    #sudo apt-get -y autoclean > /dev/null 2>&1
+    apt-get -y autoclean > /dev/null 2>&1
+    sleep 1
+    #sudo apt-get -y clean > /dev/null 2>&1
+    apt-get -y clean > /dev/null 2>&1
+    sleep 1
+
+    if [ -e "$TEMP_DIRECTORY" ]; then
+        #sudo rm -R "$TEMP_DIRECTORY" > /dev/null 2>&1
+        rm -R "$TEMP_DIRECTORY" > /dev/null 2>&1
+    fi
 }
 
 # Configure iptable rules
@@ -211,3 +239,4 @@ installSysctlConfig
 configureIptables
 configureIptablesLoad
 configureIptablesSave
+cleanUp
