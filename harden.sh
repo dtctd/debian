@@ -34,6 +34,30 @@ function download() {
     wget -q "$URL" >/dev/null 2>&1
 }
 
+fuction move() {
+    SOURCE="$1"
+    DESTINATION="$2"
+    IS_ROOT="$3"
+
+    if [ -e "$SOURCE" ]; then
+        if [ "$IS_ROOT" == "0" ]; then
+            mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
+        else
+            sudo mv "$SOURCE" "$DESTINATION" > /dev/null 2>&1
+        fi
+
+        if [ "$?" == "0" ]; then
+            echo 1
+        else
+            showError "$SOURCE could not be moved to $DESTINATION (error code: $?)"
+            echo 0
+        fi
+    else
+        showError "$SOURCE could not be moved to $DESTINATION because the file does not exist"
+        echo 0
+    fi
+}
+
 function createFile() {
     FILE="$1"
     IS_ROOT="$2"
