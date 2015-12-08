@@ -1,9 +1,15 @@
-# debian
+# Debian Scripts
 
-cd ~
+### Table of Contents
 
-wget https://github.com/dtctd/debian/raw/master/8.2/harden.sh
+* [Scripts](#scripts)
 
-su
+### <a name="scripts"></a>Scripts
+* [harden.sh] (#harden)
 
-bash ./harden.sh
+###### <a name="harden"></a>Harden
+
+>cd ~  
+>wget https://github.com/dtctd/debian/raw/master/8.2/harden.sh  
+>su  
+>bash ./harden.sh  
