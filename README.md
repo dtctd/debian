@@ -2,7 +2,7 @@
 
 cd ~
 
-wget https://github.com/dtctd/debian/raw/master/harden.sh
+wget https://github.com/dtctd/debian/tree/master/8.2/harden.sh
 
 su
 
