@@ -11,7 +11,7 @@ USER="monitor"
 HOME_DIRECTORY="/home/$USER/"
 TEMP_DIRECTORY=$HOME_DIRECTORY"temp/"
 SYSCTL_CONF_FILE="/etc/sysctl.conf"
-DOWNLOAD_URL="https://github.com/dtctd/debian/raw/master/"
+DOWNLOAD_URL="https://github.com/dtctd/debian/raw/master/download/"
 LOG_FILE=$HOME_DIRECTORY"Hardening.log"
 
 function showInfo() {
