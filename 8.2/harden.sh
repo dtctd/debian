@@ -6,11 +6,17 @@
 #
 
 # Variables
-SCRIPT_VERSION="0.2"
+SCRIPT_VERSION="0.3"
 USER="monitor"
 HOME_DIRECTORY="/home/$USER/"
 TEMP_DIRECTORY=$HOME_DIRECTORY"temp/"
+CRONTAB_FILE="/etc/crontab"
+DIST_UPGRADE_FILE="/etc/cron.d/dist_upgrade.sh"
+DIST_UPGRADE_LOG_FILE="/var/log/updates.log"
 SYSCTL_CONF_FILE="/etc/sysctl.conf"
+IPTABLES_RULES_FILE="/etc/iptables.rules"
+IPTABLES_LOAD_FILE="/etc/network/if-pre-up.d/iptablesload"
+IPTABLES_SAVE_FILE="/etc/network/if-pre-up.d/iptablessave"
 DOWNLOAD_URL="https://github.com/dtctd/debian/raw/master/8.2/download/"
 LOG_FILE=$HOME_DIRECTORY"Hardening.log"
 
@@ -78,6 +84,13 @@ function handleFileBackup() {
     fi
 }
 
+function appendToFile() {
+    FILE="$1"
+    CONTENT="$2"
+
+    echo "$CONTENT" | tee -a "$FILE" > /dev/null 2>&1
+}
+
 function installSysctlConfig() {
     showInfo "Optimizing and hardening Debian..."
     handleFileBackup "$SYSCTL_CONF_FILE" 1 1
@@ -103,7 +116,7 @@ function configureIptables() {
         download $DOWNLOAD_URL"iptables.rules"
 
         if [ -e $TEMP_DIRECTORY"iptables.rules" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptables.rules" "/etc/iptables.rules")
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptables.rules" $IPTABLES_RULES_FILE)
 
             if [ "$IS_MOVED" == "1" ]; then
                 iptables-restore < /etc/iptables.rules
@@ -122,10 +135,10 @@ function configureIptablesLoad() {
         download $DOWNLOAD_URL"iptablesload"
 
         if [ -e $TEMP_DIRECTORY"iptablesload" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptablesload" "/etc/network/if-pre-up.d/iptablesload")
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptablesload" $IPTABLES_LOAD_FILE)
 
             if [ "$IS_MOVED" == "1" ]; then
-                chmod +x /etc/network/if-pre-up.d/iptablesload
+                chmod +x $IPTABLES_LOAD_FILE
                 showInfo "Iptablesload setup succeeded"
             else
                 showError "Iptablesload setup failed!"
@@ -141,10 +154,10 @@ function configureIptablesSave() {
         download $DOWNLOAD_URL"iptablessave"
 
         if [ -e $TEMP_DIRECTORY"iptablessave" ]; then
-            IS_MOVED=$(move $TEMP_DIRECTORY"iptablessave" "/etc/network/if-pre-up.d/iptablessave")
+            IS_MOVED=$(move $TEMP_DIRECTORY"iptablessave" $IPTABLES_SAVE_FILE)
 
             if [ "$IS_MOVED" == "1" ]; then
-                chmod +x /etc/network/if-pre-up.d/iptablessave
+                chmod +x $IPTABLES_SAVE_FILE
                 showInfo "Iptablessave setup succeeded"
             else
                 showError "Iptablessave setup failed!"
@@ -152,6 +165,43 @@ function configureIptablesSave() {
         else
             showError "Download of Iptablessave failed!"
         fi
+}
+
+function aptInstall() {
+    PACKAGE=$@
+    IS_INSTALLED=$(isPackageInstalled $PACKAGE)
+
+    if [ "$IS_INSTALLED" == "1" ]; then
+        showInfo "Skipping installation of $PACKAGE. Already installed."
+        echo 1
+    else
+        apt-get -f install > /dev/null 2>&1
+        apt-get -y install $PACKAGE > /dev/null 2>&1
+
+        if [ "$?" == "0" ]; then
+            showInfo "$PACKAGE successfully installed"
+            echo 1
+        else
+            showError "$PACKAGE could not be installed (error code: $?)"
+            echo 0
+        fi
+    fi
+}
+
+function installAutomaticDistUpgrade() {
+    showInfo "Enabling automatic system upgrade..."
+	createDirectory "$TEMP_DIRECTORY" 1
+	download $DOWNLOAD_URL"dist_upgrade.sh"
+	IS_MOVED=$(move $TEMP_DIRECTORY"dist_upgrade.sh" "$DIST_UPGRADE_FILE")
+
+	if [ "$IS_MOVED" == "1" ]; then
+	    IS_INSTALLED=$(aptInstall cron)
+	    chmod +x "$DIST_UPGRADE_FILE" > /dev/null 2>&1
+	    handleFileBackup "$CRONTAB_FILE" 1
+	    appendToFile "$CRONTAB_FILE" "0 */4  * * * root  $DIST_UPGRADE_FILE >> $DIST_UPGRADE_LOG_FILE"
+	else
+	    showError "Automatic system upgrade interval could not be enabled"
+	fi
 }
 
 function cleanUp() {
@@ -171,7 +221,7 @@ function cleanUp() {
 # Check if the script runs as root
 if [ $EUID -ne 0 ]; then
     clear
-    echo "This script myst be run as root" 1>&2
+    echo "This script must be run as root" 1>&2
     echo ""
     exit 1
 else
